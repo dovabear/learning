@@ -1,0 +1,595 @@
+MS SQL: 10.116.246.89
+  Account:sqlSalesTracker
+  Password:q1w2e3r4
+
+========================================================================
+Group
+==========
+Calc Date=ACTV_DATE, calander_date
+==========
+dimension
+==========
+Last N days Activation="Last "+NumberOfRows([Calc Date])+" days Activation"
+==========
+measurement
+==========
+Sell-In=[Query 4].[Sell-In]
+Grand Sell-In=Sum([Query 4].[Sell-In])
+
+Total Activation=[Query 4].[Activation]
+Grand Total Activation=Sum([Query 4].[Activation])
+
+Inventroy=[Query 4].[Sell-In] - [Query 4].[Activation]
+Activation %=[Query 4].[Activation]/[Query 4].[Sell-In]
+
+Activation ACC=[Query 4].[Activation]
+Color %=[Activation ACC]/[Activation ACC] In([Project Name];[Stores Lower.Name])
+
+Activation7Avg=Sum([Query 5].[Activation])/7
+Grand Activation7Avg=[Activation7Avg]
+
+DOS=[Inventroy]/[Activation7Avg]
+Grand Dos=Sum([Inventroy])/[Activation7Avg]
+
+MaxDT=Max([Query 6].[Actv Date]) ForAll([Query 6].[Actv Date])
+MaxDateActvTTL=[Query 6].[Activation Cnt] Where ([Query 6].[Actv Date]=[MaxDT])
+WoW=([MaxDateActvTTL]-[MinDateActvTTL])/[MinDateActvTTL]
+Grand WoW=(Sum([MaxDateActvTTL])-Sum([MinDateActvTTL]))/Sum([MinDateActvTTL])
+
+Territory / Country S= If [Region Name]="EMEA" Then [Territory Name] Else [Countries.Name]
+=========
+
+========================================================================
+SELECT TOP (1000) 
+	STORE_UPPER.[Name], STORE_LOWER.[Name]
+FROM [StoreRelationships] AS STORE_REL
+LEFT JOIN [Stores] AS STORE_UPPER
+ON STORE_UPPER.StoreId=STORE_REL.UpperLayerStoreId 
+LEFT JOIN [Stores] AS STORE_LOWER
+ON STORE_LOWER.StoreId=STORE_REL.LowerLayerStoreId
+WHERE STORE_UPPER.Name LIKE '%SYNNEX%' AND STORE_UPPER.CountryDigit2='TW'
+========================================================================
+CREATE VIEW View_RetailActnCustDailyFact
+AS SELECT 
+	ActivationPools.ActiveDate AS ACTV_DATE, 
+	Models.ModelId AS MODEL_ID, 
+	Products.ProductId AS PRODUCT_ID, 
+	STORE_LOWER.StoreId AS LOWER_STORE_ID, 
+	STORE_UPPER.StoreId AS UPPER_STORE_ID, 
+	COUNT(Transactions.SerialNumberPoolId) AS SELL_IN_QTY, 
+	COUNT(ActivationPools.ActiveDate) AS ACTIVATION_CNT
+FROM Transactions 
+LEFT JOIN Products 
+ON Transactions.ProductId=Products.ProductId 
+LEFT JOIN Models 
+ON Products.ModelId=Models.ModelId
+LEFT JOIN Stores STORE_UPPER
+ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+LEFT JOIN Stores STORE_LOWER
+ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+LEFT JOIN ActivationPools 
+ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+WHERE 
+	Transactions.ReturnFlag<>1 
+GROUP BY 
+	ActiveDate, Models.ModelId, Products.ProductId, STORE_LOWER.StoreId, STORE_UPPER.StoreId
+========================================================================
+SELECT 
+	ShipOutDate AS SHIP_DATE,
+	ActivationPools.ActiveDate AS ACTV_DATE, 
+	Models.ModelId AS MODEL_ID, 
+	Products.ProductId AS PRODUCT_ID, 
+	STORE_LOWER.StoreId AS LOWER_STORE_ID, 
+	STORE_UPPER.StoreId AS UPPER_STORE_ID, 
+	COUNT(Transactions.SerialNumberPoolId) AS SELL_IN, 
+	COUNT(ActivationPools.ActiveDate) AS ACTIVATION
+FROM Transactions 
+LEFT JOIN Products 
+ON Transactions.ProductId=Products.ProductId 
+LEFT JOIN Models 
+ON Products.ModelId=Models.ModelId
+LEFT JOIN Stores STORE_UPPER
+ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+LEFT JOIN Stores STORE_LOWER
+ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+LEFT JOIN ActivationPools 
+ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+WHERE 
+	Transactions.ReturnFlag<>1 
+GROUP BY 
+	ShipOutDate, ActiveDate, Models.ModelId, Products.ProductId, STORE_LOWER.StoreId, STORE_UPPER.StoreId
+========================================================================
+SELECT 
+	FACT_SUM.[Region], 
+	FACT_SUM.[Territory], 
+	FACT_SUM.[Country], 
+	FACT_SUM.[Customer], 
+	FACT_SUM.[Model], 
+	FACT_SUM.[Color], 
+	FACT_SUM.[Sell-In], 
+	FACT_SUM.[Activation], 
+	FACT_SUM.[Inventory], 
+	CAST(ROUND(FACT_SUM.[ACTIVATION RATE], 0) AS INT) AS [ACTIVATION %], 
+	CAST(ROUND(FACT_SUM.[Last 7 Days AVG], 1) AS FLOAT) AS [Last 7 Days AVG], 
+	CAST(ROUND(FACT_SUM.Inventory/FACT_SUM.[Last 7 Days AVG], 0) AS INT) AS [DOS], 
+	CAST(ROUND(100.0 *SUM(FACT_SUM.ACTIVATION) OVER(PARTITION BY FACT_SUM.[REGION], FACT_SUM.[Territory], FACT_SUM.[Country], FACT_SUM.[Customer], FACT_SUM.[Model], FACT_SUM.Color) / SUM(FACT_SUM.ACTIVATION) OVER(PARTITION BY FACT_SUM.[REGION], FACT_SUM.[Territory], FACT_SUM.[Country], FACT_SUM.[Model]), 1) AS FLOAT) AS [Color %], 
+	FACT_SUM.[D-8],
+	FACT_SUM.[D-7],
+	FACT_SUM.[D-6],
+	FACT_SUM.[D-5],
+	FACT_SUM.[D-4],
+	FACT_SUM.[D-3],
+	FACT_SUM.[D-2],
+	FACT_SUM.[D-1], 
+	CAST(ROUND(FACT_SUM.[WOW], 0) AS INT) AS [WOW %]
+FROM 
+(SELECT 
+	Regions.RegionName AS [Region], 
+	Territories.TerritoryName AS [Territory], 
+	Countries.Name AS [Country], 
+	FACT_DETAIL.CUST_NAME AS [Customer], 
+	FACT_DETAIL.MODEL AS [Model], 
+	FACT_DETAIL.Color, 
+	SUM(FACT_DETAIL.SELL_IN) AS [Sell-In], 
+	SUM(FACT_DETAIL.ACTIVATION) AS [Activation], 
+	SUM(FACT_DETAIL.SELL_IN)-SUM(FACT_DETAIL.ACTIVATION) AS [Inventory], 
+	100.0 * SUM(FACT_DETAIL.ACTIVATION)/SUM(FACT_DETAIL.SELL_IN) AS [ACTIVATION RATE], 
+	SUM(FACT_DETAIL.ACTIVATION_7_SUM)/7.0 AS [Last 7 Days AVG], 
+	SUM(FACT_DETAIL.[D-8])AS [D-8],
+	SUM(FACT_DETAIL.[D-7])AS [D-7],
+    SUM(FACT_DETAIL.[D-6])AS [D-6],
+    SUM(FACT_DETAIL.[D-5])AS [D-5],
+    SUM(FACT_DETAIL.[D-4])AS [D-4],
+    SUM(FACT_DETAIL.[D-3])AS [D-3],
+    SUM(FACT_DETAIL.[D-2])AS [D-2],
+	SUM(FACT_DETAIL.[D-1])AS [D-1], 
+	CASE WHEN SUM(FACT_DETAIL.[D-8])>0 THEN 100.0* (SUM(FACT_DETAIL.[D-1])-SUM(FACT_DETAIL.[D-8])) / SUM(FACT_DETAIL.[D-8]) END AS [WOW]
+FROM
+	(SELECT 
+		ShipOutDate AS SHIP_DATE,
+		ActivationPools.ActiveDate AS ACTV_DATE, 
+		Models.ProjectName AS MODEL, 
+		Products.Color, 
+		STORE_LOWER.Name AS CUST_NAME, 
+		STORE_LOWER.CountryDigit2 AS CountryDigit2, 
+		COUNT(Transactions.SerialNumberPoolId) AS SELL_IN, 
+		COUNT(ActivationPools.ActiveDate) AS ACTIVATION,  
+		CASE WHEN ActiveDate BETWEEN CAST(Getdate()-7 AS DATE) AND CAST(Getdate() AS DATE) 
+		THEN COUNT(ActivationPools.ActiveDate) END AS ACTIVATION_7_SUM, 
+		CASE WHEN ActiveDate=CAST(GETDATE()-8 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-8], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-7 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-7], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-6 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-6], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-5 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-5], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-4 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-4], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-3 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-3], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-2 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-2], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-1 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-1] 
+	FROM Transactions 
+	LEFT JOIN Products 
+	ON Transactions.ProductId=Products.ProductId 
+	LEFT JOIN Models 
+	ON Products.ModelId=Models.ModelId
+	LEFT JOIN Stores STORE_UPPER
+	ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+	LEFT JOIN Stores STORE_LOWER
+	ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+	LEFT JOIN ActivationPools 
+	ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+	WHERE 
+		Transactions.ReturnFlag<>1 
+		AND STORE_UPPER.ChannelTypeId=1 
+		AND STORE_LOWER.CountryDigit2='TW' 
+	GROUP BY 
+		ShipOutDate, ActiveDate, Models.ProjectName, Products.Color, STORE_LOWER.Name, STORE_LOWER.CountryDigit2
+) AS FACT_DETAIL 
+LEFT JOIN Countries 
+ON FACT_DETAIL.CountryDigit2=Countries.CountryDigit2 
+LEFT JOIN Territories 
+ON Countries.TerritoryId=Territories.TerritoryId
+LEFT JOIN Regions 
+ON Territories.RegionId=Regions.RegionId 
+GROUP BY Regions.RegionName, Territories.TerritoryName, Countries.Name, FACT_DETAIL.CUST_NAME, FACT_DETAIL.MODEL, FACT_DETAIL.Color
+) AS FACT_SUM
+WHERE FACT_SUM.MODEL LIKE '%OCEAN%'
+;
+========================================================================
+SELECT 
+	FACT_SUM.[Region], 
+	FACT_SUM.[Territory], 
+	FACT_SUM.[Country], 
+	FACT_SUM.[Customer], 
+	FACT_SUM.[Model], 
+	FACT_SUM.[Color], 
+	FACT_SUM.[Sell-In], 
+	FACT_SUM.[Activation], 
+	FACT_SUM.[Inventory], 
+	CAST(ROUND(FACT_SUM.[ACTIVATION RATE], 0) AS INT) AS [ACTIVATION %], 
+	CAST(ROUND(QUERY_ACTV_AVG_7.[Last 7 Days AVG], 1) AS FLOAT) AS [Last 7 Days AVG], 
+	CAST(ROUND(FACT_SUM.Inventory/QUERY_ACTV_AVG_7.[Last 7 Days AVG], 0) AS INT) AS [DOS], 
+	CAST(ROUND(100.0 *SUM(FACT_SUM.ACTIVATION) OVER(PARTITION BY FACT_SUM.[REGION], FACT_SUM.[Territory], FACT_SUM.[Country], FACT_SUM.[Customer], FACT_SUM.[Model], FACT_SUM.Color) / SUM(FACT_SUM.ACTIVATION) OVER(PARTITION BY FACT_SUM.[REGION], FACT_SUM.[Territory], FACT_SUM.[Country], FACT_SUM.[Model]), 1) AS FLOAT) AS [Color %], 
+	QUERY_ACTV_AVG_7.[D-8],
+	QUERY_ACTV_AVG_7.[D-7],
+	QUERY_ACTV_AVG_7.[D-6],
+	QUERY_ACTV_AVG_7.[D-5],
+	QUERY_ACTV_AVG_7.[D-4],
+	QUERY_ACTV_AVG_7.[D-3],
+	QUERY_ACTV_AVG_7.[D-2],
+	QUERY_ACTV_AVG_7.[D-1], 
+	CAST(ROUND(QUERY_ACTV_AVG_7.[WOW], 0) AS INT) AS [WOW %]
+FROM 
+(SELECT 
+	Regions.RegionName AS [Region], 
+	Territories.TerritoryName AS [Territory], 
+	Countries.Name AS [Country], 
+	FACT_RAW.CUST_NAME AS [Customer], 
+	FACT_RAW.MODEL AS [Model], 
+	FACT_RAW.Color, 
+	SUM(FACT_RAW.SELL_IN) AS [Sell-In], 
+	SUM(FACT_RAW.ACTIVATION) AS [Activation], 
+	SUM(FACT_RAW.SELL_IN)-SUM(FACT_RAW.ACTIVATION) AS [Inventory], 
+	100.0 * SUM(FACT_RAW.ACTIVATION)/SUM(FACT_RAW.SELL_IN) AS [ACTIVATION RATE]
+FROM
+	(SELECT 
+		ShipOutDate AS SHIP_DATE,
+		ActivationPools.ActiveDate AS ACTV_DATE, 
+		Models.ProjectName AS MODEL, 
+		Products.Color, 
+		STORE_LOWER.Name AS CUST_NAME, 
+		STORE_LOWER.CountryDigit2 AS CountryDigit2, 
+		COUNT(Transactions.SerialNumberPoolId) AS SELL_IN, 
+		COUNT(ActivationPools.ActiveDate) AS ACTIVATION
+	FROM Transactions 
+	LEFT JOIN Products 
+	ON Transactions.ProductId=Products.ProductId 
+	LEFT JOIN Models 
+	ON Products.ModelId=Models.ModelId
+	LEFT JOIN Stores STORE_UPPER
+	ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+	LEFT JOIN Stores STORE_LOWER
+	ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+	LEFT JOIN ActivationPools 
+	ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+	WHERE 
+		Transactions.ReturnFlag<>1 
+		AND STORE_UPPER.ChannelTypeId=1 
+		AND STORE_LOWER.CountryDigit2='TW' 
+	GROUP BY 
+		ShipOutDate, ActiveDate, Models.ProjectName, Products.Color, STORE_LOWER.Name, STORE_LOWER.CountryDigit2
+) AS FACT_RAW 
+LEFT JOIN Countries 
+ON FACT_RAW.CountryDigit2=Countries.CountryDigit2 
+LEFT JOIN Territories 
+ON Countries.TerritoryId=Territories.TerritoryId
+LEFT JOIN Regions 
+ON Territories.RegionId=Regions.RegionId 
+WHERE FACT_RAW.MODEL LIKE '%OCEAN%'
+GROUP BY Regions.RegionName, Territories.TerritoryName, Countries.Name, FACT_RAW.CUST_NAME, FACT_RAW.MODEL, FACT_RAW.Color
+) AS FACT_SUM
+LEFT JOIN 
+(SELECT 
+	Regions.RegionName AS [Region], 
+	Territories.TerritoryName AS [Territory], 
+	Countries.Name AS [Country], 
+	QUERY1.CUST_NAME AS [Customer], 
+	QUERY1.MODEL AS [Model], 
+	QUERY1.Color, 
+	SUM(QUERY1.ACTIVATION)/7.0 AS [Last 7 Days AVG], 
+	SUM(QUERY1.[D-8])AS [D-8],
+	SUM(QUERY1.[D-7])AS [D-7],
+    SUM(QUERY1.[D-6])AS [D-6],
+    SUM(QUERY1.[D-5])AS [D-5],
+    SUM(QUERY1.[D-4])AS [D-4],
+    SUM(QUERY1.[D-3])AS [D-3],
+    SUM(QUERY1.[D-2])AS [D-2],
+	SUM(QUERY1.[D-1])AS [D-1], 
+	CASE WHEN SUM(QUERY1.[D-8])>0 THEN 100.0* (SUM(QUERY1.[D-1])-SUM(QUERY1.[D-8])) / SUM(QUERY1.[D-8]) END AS [WOW]
+FROM 
+	(SELECT 
+		ActivationPools.ActiveDate AS ACTV_DATE, 
+		Models.ProjectName AS MODEL, 
+		Products.Color, 
+		STORE_LOWER.Name AS CUST_NAME, 
+		STORE_LOWER.CountryDigit2 AS CountryDigit2, 
+		CASE WHEN ActiveDate BETWEEN CAST(Getdate()-7 AS DATE) AND CAST(Getdate() AS DATE) 
+		THEN COUNT(ActivationPools.ActiveDate) END AS ACTIVATION, 
+		CASE WHEN ActiveDate=CAST(GETDATE()-8 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-8], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-7 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-7], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-6 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-6], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-5 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-5], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-4 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-4], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-3 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-3], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-2 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-2], 
+		CASE WHEN ActiveDate=CAST(GETDATE()-1 AS DATE) THEN COUNT(ActiveDate) ELSE 0 END AS [D-1] 
+	FROM Transactions 
+	LEFT JOIN Products 
+	ON Transactions.ProductId=Products.ProductId 
+	LEFT JOIN Models 
+	ON Products.ModelId=Models.ModelId
+	LEFT JOIN Stores STORE_UPPER
+	ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+	LEFT JOIN Stores STORE_LOWER
+	ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+	LEFT JOIN ActivationPools 
+	ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+	WHERE 
+		Transactions.ReturnFlag<>1 
+		AND STORE_UPPER.ChannelTypeId=1 
+		AND STORE_LOWER.CountryDigit2='TW' 
+	GROUP BY 
+		ShipOutDate, ActiveDate, Models.ProjectName, Products.Color, STORE_LOWER.Name, STORE_LOWER.CountryDigit2
+	) AS QUERY1 
+LEFT JOIN Countries 
+ON QUERY1.CountryDigit2=Countries.CountryDigit2 
+LEFT JOIN Territories 
+ON Countries.TerritoryId=Territories.TerritoryId
+LEFT JOIN Regions 
+ON Territories.RegionId=Regions.RegionId 
+WHERE
+	QUERY1.ACTV_DATE BETWEEN CAST(Getdate()-8 AS DATE) AND CAST(Getdate() AS DATE) 
+	AND QUERY1.MODEL LIKE '%OCEAN%'
+GROUP BY Regions.RegionName, Territories.TerritoryName, Countries.Name, QUERY1.CUST_NAME, QUERY1.MODEL, QUERY1.Color 
+) AS QUERY_ACTV_AVG_7 
+ON 
+	FACT_SUM.[Region]=QUERY_ACTV_AVG_7.[Region] 
+	AND FACT_SUM.[Territory]=QUERY_ACTV_AVG_7.[Territory] 
+	AND FACT_SUM.[Country]=QUERY_ACTV_AVG_7.[Country] 
+	AND FACT_SUM.[Customer]=QUERY_ACTV_AVG_7.[Customer] 
+	AND FACT_SUM.[Model]=QUERY_ACTV_AVG_7.[Model] 
+	AND FACT_SUM.[Color]=QUERY_ACTV_AVG_7.[Color]
+;
+========================================================================
+SELECT 
+	*, 
+	SUM(FACT_SUM.ACTIVATION) OVER(PARTITION BY FACT_SUM.[REGION], FACT_SUM.[Territory], FACT_SUM.[Country], FACT_SUM.[Customer], FACT_SUM.[Model], FACT_SUM.Color) AS SUM_BY_COLOR_ACTIVATION, 
+	SUM(FACT_SUM.ACTIVATION) OVER(PARTITION BY FACT_SUM.[REGION], FACT_SUM.[Territory], FACT_SUM.[Country], FACT_SUM.[Model]) AS SUM_BY_MODEL_ACTIVATION
+FROM 
+(SELECT 
+	Regions.RegionName AS [Region], 
+	Territories.TerritoryName AS [Territory], 
+	Countries.Name AS [Country], 
+	Fact.CUST_NAME AS [Customer], 
+	FACT.MODEL AS [Model], 
+	FACT.Color, 
+	SUM(FACT.SELL_IN) AS [Sell-In], 
+	SUM(FACT.ACTIVATION) AS [Activation], 
+	SUM(FACT.SELL_IN)-SUM(FACT.ACTIVATION) AS [Inventory], 
+	100.0 * SUM(FACT.ACTIVATION)/SUM(FACT.SELL_IN) AS [ACTIVATION RATE]
+FROM
+(SELECT 
+	Transactions.SerialNumberPoolId, 
+	ShipOutDate AS SHIP_DATE,
+	ActivationPools.ActiveDate AS ACTV_DATE, 
+	Models.ProjectName AS MODEL, 
+	Products.Color, 
+	STORE_LOWER.Name AS CUST_NAME, 
+	STORE_LOWER.CountryDigit2 AS CountryDigit2, 
+	COUNT(Transactions.SerialNumberPoolId) AS SELL_IN, 
+	COUNT(ActivationPools.ActiveDate) AS ACTIVATION
+FROM Transactions 
+LEFT JOIN Products 
+ON Transactions.ProductId=Products.ProductId 
+LEFT JOIN Models 
+ON Products.ModelId=Models.ModelId
+LEFT JOIN Stores STORE_UPPER
+ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+LEFT JOIN Stores STORE_LOWER
+ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+LEFT JOIN ActivationPools 
+ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+WHERE 
+	Transactions.ReturnFlag<>1 
+	AND STORE_UPPER.ChannelTypeId=1 
+	AND STORE_LOWER.CountryDigit2='TW' 
+GROUP BY 
+	Transactions.SerialNumberPoolId, ShipOutDate, ActiveDate, Models.ProjectName, Products.Color, STORE_LOWER.Name, STORE_LOWER.CountryDigit2
+) AS FACT 
+LEFT JOIN Countries 
+ON FACT.CountryDigit2=Countries.CountryDigit2 
+LEFT JOIN Territories 
+ON Countries.TerritoryId=Territories.TerritoryId
+LEFT JOIN Regions 
+ON Territories.RegionId=Regions.RegionId 
+WHERE FACT.MODEL LIKE '%OCEAN%'
+GROUP BY Regions.RegionName, Territories.TerritoryName, Countries.Name, FACT.CUST_NAME, FACT.MODEL, FACT.Color
+) AS FACT_SUM
+;
+====================================================
+SELL-IN
+====================================================
+SELECT 
+	Transactions.SerialNumberPoolId, 
+	ShipOutDate AS SHIP_DATE,
+	ActivationPools.ActiveDate AS ACTV_DATE, 
+	Models.ProjectName AS MODEL, 
+	Products.Color, 
+	STORE_LOWER.Name AS CUST_NAME, 
+	STORE_LOWER.CountryDigit2 AS CountryDigit2, 
+	STORE_UPPER.ChannelTypeId
+FROM Transactions 
+LEFT JOIN Products 
+ON Transactions.ProductId=Products.ProductId 
+LEFT JOIN ItemPools 
+ON Products.Partnumber=ItemPools.ItemCode 
+LEFT JOIN Models 
+ON Products.ModelId=Models.ModelId
+LEFT JOIN Stores STORE_UPPER
+ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+LEFT JOIN Stores STORE_LOWER
+ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+LEFT JOIN ActivationPools 
+ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+WHERE 
+	Transactions.ReturnFlag<>1 AND 
+	STORE_UPPER.ChannelTypeId=1 AND 
+	STORE_LOWER.CountryDigit2='TW'
+====================================================
+SELECT 
+	Transactions.SerialNumberPoolId, 
+	ShipOutDate AS SHIP_DATE,
+	ActiveDate AS ACTV_DATE, 
+	Models.ProjectName AS MODEL, 
+	Products.Color, 
+	STORE_LOWER.Name AS CUST_NAME, 
+	STORE_LOWER.CountryDigit2 AS CountryDigit2, 
+	COUNT(Transactions.SerialNumberPoolId) AS SELL_IN, 
+	COUNT(ActivationPools.ActiveDate) AS ACTIVATION
+FROM Transactions 
+LEFT JOIN Products 
+ON Transactions.ProductId=Products.ProductId 
+LEFT JOIN Models 
+ON Products.ModelId=Models.ModelId
+LEFT JOIN Stores STORE_UPPER
+ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+LEFT JOIN Stores STORE_LOWER
+ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+LEFT JOIN ActivationPools 
+ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+WHERE 
+	Transactions.ReturnFlag<>1 
+	AND STORE_UPPER.ChannelTypeId=1 
+	AND STORE_LOWER.CountryDigit2='TW' 
+GROUP BY 
+	Transactions.SerialNumberPoolId, ShipOutDate, ActiveDate, Models.ProjectName, Products.Color, STORE_LOWER.Name, STORE_LOWER.CountryDigit2
+====================================================
+ACTIVATION
+====================================================
+SELECT 
+	SerialNumberPoolId, 
+	ActiveDate AS CAL_DATE, 
+	Models.ProjectName AS MODEL, 
+	ItemPools.Color, 
+	Stores.Name AS CUST_NAME, 
+	ActivateCountry AS CountryDigit2
+FROM ActivationPools 
+LEFT JOIN Products 
+ON ActivationPools.Partnumber=Products.Partnumber 
+LEFT JOIN ItemPools 
+ON Products.Partnumber=ItemPools.ItemCode 
+LEFT JOIN Models 
+ON Products.ModelId=Models.ModelId
+LEFT JOIN CustomerCodes 
+ON ActivationPools.CustomerCode=CustomerCodes.CustomerCode 
+LEFT JOIN Stores 
+ON CustomerCodes.MappingStoreId=Stores.StoreId 
+WHERE 
+	Stores.ChannelTypeId=7 AND 
+	ActivationPools.ActivateCountry='TW'
+====================================================
+SQL Server
+==========
+SELECT 
+	FACT_SUM.[Region], 
+	FACT_SUM.[Territory], 
+	FACT_SUM.[Country], 
+	FACT_SUM.[Customer], 
+	FACT_SUM.[Model], 
+	FACT_SUM.[Color], 
+	FACT_SUM.[Sell-In], 
+	FACT_SUM.[Activation]
+FROM 
+(SELECT 
+	Regions.RegionName AS [Region], 
+	Territories.TerritoryName AS [Territory], 
+	Countries.Name AS [Country], 
+	FACT_DETAIL.CUST_NAME AS [Customer], 
+	FACT_DETAIL.MODEL AS [Model], 
+	FACT_DETAIL.Color, 
+	SUM(FACT_DETAIL.SELL_IN) AS [Sell-In], 
+	SUM(FACT_DETAIL.ACTIVATION) AS [Activation]
+FROM
+	(SELECT 
+		ShipOutDate AS SHIP_DATE,
+		ActivationPools.ActiveDate AS ACTV_DATE, 
+		Models.ProjectName AS MODEL, 
+		Products.Color, 
+		STORE_LOWER.Name AS CUST_NAME, 
+		STORE_LOWER.CountryDigit2 AS CountryDigit2, 
+		COUNT(Transactions.SerialNumberPoolId) AS SELL_IN, 
+		COUNT(ActivationPools.ActiveDate) AS ACTIVATION
+	FROM Transactions 
+	LEFT JOIN Products 
+	ON Transactions.ProductId=Products.ProductId 
+	LEFT JOIN Models 
+	ON Products.ModelId=Models.ModelId
+	LEFT JOIN Stores STORE_UPPER
+	ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+	LEFT JOIN Stores STORE_LOWER
+	ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+	LEFT JOIN ActivationPools 
+	ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+	WHERE 
+		Transactions.ReturnFlag<>1 
+		AND STORE_UPPER.ChannelTypeId=1 
+		AND STORE_LOWER.CountryDigit2='TW' 
+		AND Products.Color='CERAMIC BLACK' 
+		AND Models.MarketingName='HTC U11+ (OCEAN M#DUGL)'
+	GROUP BY 
+		ShipOutDate, ActiveDate, Models.ProjectName, Products.Color, STORE_LOWER.Name, STORE_LOWER.CountryDigit2
+) AS FACT_DETAIL 
+LEFT JOIN Countries 
+ON FACT_DETAIL.CountryDigit2=Countries.CountryDigit2 
+LEFT JOIN Territories 
+ON Countries.TerritoryId=Territories.TerritoryId
+LEFT JOIN Regions 
+ON Territories.RegionId=Regions.RegionId 
+GROUP BY Regions.RegionName, Territories.TerritoryName, Countries.Name, FACT_DETAIL.CUST_NAME, FACT_DETAIL.MODEL, FACT_DETAIL.Color
+) AS FACT_SUM
+ORDER BY Region, Territory, Country, Customer, Model, Color
+;
+====================================================
+Teradata
+===========
+SELECT 
+				CNTRY_DIM.AREA_NAME, 
+				CNTRY_DIM.REGION_SHORT_NAME, 
+				CNTRY_DIM.CNTRY_NAME, 
+				PROJ_DIM.PARENT_PROJ_NAME, 
+				FACT.COLOR_NAME, 
+				CUST_DIM.RA_CUST_DISP_NAME, 
+				SUM(FACT.SELL_IN_QTY) AS SELL_IN, 
+				SUM(FACT.FIRST_CNTRY_NORMAL_CNT+FACT.FIRST_CNTRY_TURN_OUT_CNT+FACT.UNCLF_FIRST_CNTRY_CHECK_IN_CNT) AS Activation
+FROM pM_RA.RA_CUST_DAILY_ACCU_FACT FACT 
+LEFT JOIN pVIEW.BI_CNTRY_DIM CNTRY_DIM 
+ON FACT.CNTRY_CD=CNTRY_DIM.CNTRY_CD 
+LEFT JOIN pDATA.BI_PROJ_DIM PROJ_DIM 
+ON FACT.PROJ_CD=PROJ_DIM.PROJ_CD 
+LEFT JOIN pDATA.BI_CUST_DIM CUST_DIM 
+ON FACT.CUST_CD=CUST_DIM.CUST_CD 
+GROUP BY 1,2,3,4,5,6
+WHERE 
+	CNTRY_DIM.CNTRY_NAME='Taiwan' AND 
+	--CUST_DIM.RA_CUST_DISP_NAME='台灣之星電信股份有限公司'  AND 
+	PROJ_DIM.PARENT_PROJ_NAME='OCEAN M#DUGL' AND 
+	FACT.COLOR_NAME='CERAMIC BLACK'
+	;
+======================================================
+SELECT TOP 10 *
+FROM(
+SELECT  
+	ActivationPools.ActiveDate AS ACTV_DATE, 
+	Models.ModelId AS MODEL_ID, 
+	Products.ProductId AS PRODUCT_ID, 
+	STORE_LOWER.StoreId AS LOWER_STORE_ID, 
+	STORE_UPPER.StoreId AS UPPER_STORE_ID, 
+	COUNT(Transactions.SerialNumberPoolId) AS SELL_IN_QTY, 
+	COUNT(ActivationPools.ActiveDate) AS ACTIVATION_CNT, 
+	SUM(ActivationPools.Normal_Count) AS ACTIVATION_NORMAL, 
+	SUM(CASE WHEN ActivationPools.IsCountryActv=0 AND ActivationPools.IsMissLocation=0 THEN 1 ELSE 0 END) AS ACTIVATION_TURNOUT, 
+	SUM(ActivationPools.IsMissLocation) AS ACTIVATION_UNCLASSIFY
+FROM Transactions 
+LEFT JOIN Products 
+ON Transactions.ProductId=Products.ProductId 
+LEFT JOIN Models 
+ON Products.ModelId=Models.ModelId
+LEFT JOIN Stores STORE_UPPER
+ON Transactions.ShippedIn=STORE_UPPER.StoreId 
+LEFT JOIN Stores STORE_LOWER
+ON Transactions.ShippedOut=STORE_LOWER.StoreId 
+LEFT JOIN ActivationPools 
+ON Transactions.SerialNumberPoolId=ActivationPools.SerialNumberPoolId
+WHERE 
+	Transactions.ReturnFlag<>1 
+GROUP BY 
+	ActiveDate, Models.ModelId, Products.ProductId, STORE_LOWER.StoreId, STORE_UPPER.StoreId
+	) AS T
+WHERE T.ACTIVATION_CNT<>(T.ACTIVATION_NORMAL+T.ACTIVATION_TURNOUT+T.ACTIVATION_UNCLASSIFY)
