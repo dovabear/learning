@@ -1,9 +1,9 @@
-安裝
+========================安裝========================
 sudo apt-get update
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
-ECHO $(lsb_release -cs)
+echo $(lsb_release -cs)
 
 sudo add-apt-repository "deb [arch=amd64]  https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
 
@@ -15,6 +15,7 @@ sudo  usermod  -aG  docker master
 
 sudo  reboot
 
+========================Basic========================
 看版本
 docker --version
 
@@ -70,4 +71,16 @@ docker load < mysave.tar
 掛載硬碟
 docker run --name mynginx -v /var/log/nginx/ -it nginx  /bin/bash
 
+========================Network========================
+Docker Network 橋接器
+docker network create <net_name>
+
+docker network create mynet1
+docker network create mynet2
+
+查看Docker Network
+docker network ls
+
+Add Container Docker Network
+docker  network  connect  <net_name>  <container_name>
 
