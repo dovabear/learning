@@ -1,0 +1,73 @@
+安裝
+sudo apt-get update
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+$(lsb_release -cs)
+
+sudo add-apt-repository "deb [arch=amd64]  https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable“
+
+sudo  apt-get update
+
+sudo  apt-get  install  docker-ce
+
+sudo  usermod  -aG  docker master
+
+sudo  reboot
+
+看版本
+docker --version
+
+看docker資訊
+docker info
+
+搜尋網路上的image檔
+docker search busybox
+
+從網路拉下image檔
+docker pull busybox
+
+看本機的image檔有哪些
+docker images
+
+run一個docker
+docker run --name busybox -it busybox /bin/sh
+
+ctl+p & ctl+q退出 原docker繼續執行
+
+看本機的container以及是否在執行
+docker ps -a
+
+已有container，再把它run起來
+docker start mysh
+
+已執行的docker，把它關掉
+docker stop mysh
+
+進入已在背景執行的docker
+docker attach mysh
+
+移除container
+docker rm mysh
+
+移除image
+docker rmi mysh
+
+看image檔的歷史紀錄命令
+docker history myhp
+
+進入docker執行命令
+docker exec -it myuser whoami
+
+container的備份與還原
+docker export mybak > myexport.tar
+cat myexport.tar | docker import - mythree
+
+image的備份與還原
+docker save mytwo > mysave.tar
+docker load < mysave.tar
+
+掛載硬碟
+docker run --name mynginx -v /var/log/nginx/ -it nginx  /bin/bash
+
+
