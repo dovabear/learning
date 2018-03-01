@@ -32,4 +32,4 @@ http://blog.ittraining.com.tw/2017/11/py-ipython-notebook-ipynb.htm
 https://www.youtube.com/watch?v=cTE2fmqVosU&list=PLCJcQMZOafICYrx7zhFu_RWHRZqpB8fIW&index=1 
 
 # GB2312與UTF8編碼講解
-https://www.youtube.com/watch?v=HCvYLV8Msh
+https://www.youtube.com/watch?v=HCvYLV8Mshc
