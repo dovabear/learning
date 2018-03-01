@@ -84,3 +84,21 @@ docker network ls
 Add Container Docker Network
 docker  network  connect  <net_name>  <container_name>
 
+========================Ambari Installation========================
+==install ifconfig==
+apt-get update
+apt-get install net-tools
+==install ping==
+apt-get install iputils-ping
+==install through docker exec==
+docker exec -it m01 apt-get install iputils-ping
+
+==install vi/vim==
+sudo apt-get install vim
+
+==edit host/ip==
+sudo vi /etc/hosts
+*add following lines*
+
+172.17.0.2 slave1
+172.17.0.3 slave2
