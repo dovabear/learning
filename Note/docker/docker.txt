@@ -85,20 +85,33 @@ Add Container Docker Network
 docker  network  connect  <net_name>  <container_name>
 
 ========================Ambari Installation========================
+docker run --hostname=s01 --name=s01 -itd ubuntu:16.04
+docker run --hostname=s02 --name=s02 -itd ubuntu:16.04
+docker run --hostname=s03 --name=s03 -itd ubuntu:16.04
 ==install ifconfig==
 apt-get update
 apt-get install net-tools
+
 ==install ping==
 apt-get install iputils-ping
-==install through docker exec==
-docker exec -it m01 apt-get install iputils-ping
 
 ==install vi/vim==
 sudo apt-get install vim
+
+==install all by one cmd==
+docker exec -it s01 apt-get install iputils-ping vim
 
 ==edit host/ip==
 sudo vi /etc/hosts
 *add following lines*
 
-172.17.0.2 slave1
-172.17.0.3 slave2
+172.17.0.2 s01
+172.17.0.3 s02
+172.17.0.4 s03
+
+==Firewall Off==
+ufw disable
+(problems with container)
+
+==Ambari Repository Installation==
+https://cwiki.apache.org/confluence/display/AMBARI/Installation+Guide+for+Ambari+2.6.1
