@@ -115,3 +115,28 @@ ufw disable
 
 ==Ambari Repository Installation==
 https://cwiki.apache.org/confluence/display/AMBARI/Installation+Guide+for+Ambari+2.6.1
+
+==ssh==
+master給root密碼
+切換到root帳號
+ssh-keygen
+ls ~/.ssh/
+ id_rsa  
+ id_rsa.pub
+
+
+
+切換到slave1，slave2
+給root密碼
+nano /etc/ssh/sshd_config
+ PermitRootLogin without-password
+ change to
+ PermitRootLogin yes
+service ssh restart
+
+切換到master root帳號
+ssh-copy-id -i ~/.ssh/id_rsa.pub slave1
+ssh-copy-id -i ~/.ssh/id_rsa.pub slave2
+
+各別ssh一次 因為第一次要打密碼
+ssh登入 用exit離開 不是docker
