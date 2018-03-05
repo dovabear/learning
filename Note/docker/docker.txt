@@ -5,7 +5,7 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 echo $(lsb_release -cs)
 
-sudo add-apt-repository "deb [arch=amd64]  https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+sudo add-apt-repository "deb [arch=amd64]  https://download.docker.com/linux/ubuntu  xenial  stable"
 
 sudo  apt-get update
 
@@ -13,8 +13,11 @@ sudo  apt-get  install  docker-ce
 
 sudo  usermod  -aG  docker master
 
-sudo  reboot
+-------------------
+sudo passwd root 
+-------------------
 
+sudo  reboot
 ========================Basic========================
 看版本
 docker --version
@@ -85,9 +88,9 @@ Add Container Docker Network
 docker  network  connect  <net_name>  <container_name>
 
 ========================Ambari Installation========================
-docker run --hostname=s01 --name=s01 -itd ubuntu:16.04
-docker run --hostname=s02 --name=s02 -itd ubuntu:16.04
-docker run --hostname=s03 --name=s03 -itd ubuntu:16.04
+docker run --hostname=s01 --add-host master:X.X.X.X --add-host s02:X.X.X.X --add-host s03:X.X.X.X --name=s01 -itd ubuntu:16.04
+docker run --hostname=s02 --add-host master:X.X.X.X --add-host s01:X.X.X.X --add-host s03:X.X.X.X --name=s02 -itd ubuntu:16.04
+docker run --hostname=s03 --add-host master:X.X.X.X --add-host s01:X.X.X.X --add-host s02:X.X.X.X --name=s03 -itd ubuntu:16.04
 ==install ifconfig==
 apt-get update
 apt-get install net-tools
@@ -98,8 +101,11 @@ apt-get install iputils-ping
 ==install vi/vim==
 sudo apt-get install vim
 
+==install ssh==
+sudo apt-get install ssh
+
 ==install all by one cmd==
-docker exec -it s01 apt-get install iputils-ping vim
+docker exec -it s01 apt-get install iputils-ping nano net-tools ssh
 
 ==edit host/ip==
 sudo vi /etc/hosts
@@ -124,8 +130,6 @@ ls ~/.ssh/
  id_rsa  
  id_rsa.pub
 
-
-
 切換到slave1，slave2
 給root密碼
 nano /etc/ssh/sshd_config
@@ -140,3 +144,7 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub slave2
 
 各別ssh一次 因為第一次要打密碼
 ssh登入 用exit離開 不是docker
+
+去slave1 slave2 slave3 nano .bashrc檔
+在最後一段加上
+service ssh start
