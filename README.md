@@ -33,3 +33,6 @@ https://www.youtube.com/watch?v=cTE2fmqVosU&list=PLCJcQMZOafICYrx7zhFu_RWHRZqpB8
 
 # GB2312與UTF8編碼講解
 https://www.youtube.com/watch?v=HCvYLV8Mshc
+
+# Linux网络管理 15 SSH协议原理
+https://www.youtube.com/watch?v=miCw0rAPIdw
