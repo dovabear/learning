@@ -168,6 +168,7 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub slave1
 ssh-copy-id -i ~/.ssh/id_rsa.pub slave2
 
 ==手動安裝==
+cd /opt
 wget http://mirrors.sonic.net/apache/hadoop/common/hadoop-2.9.0/hadoop-2.9.0.tar.gz
 tar -zxvf hadoop-2.9.0.tar.gz
 檢視相容性 file /opt/hadoop-2.9.0/lib/native/libhadoop.so.1.0.0
@@ -218,3 +219,22 @@ nano /opt/hadoop-2.9.0/etc/hadoop/hdfs-site.xml
 
 3.設定hadoop-env.sh
 nano /opt/hadoop-2.9.0/etc/hadoop/hadoop-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_HEAPSIZE=128
+export HADOOP_NAMENODE_INIT_HEAPSIZE="128"
+export HADOOP_CLIENT_OPTS="-Xmx128m $HADOOP_CLIENT_OPTS"
+export HADOOP_LOG_DIR=/tmp
+-----------------------------------
+export HADOOP_DATANODE_OPTS="-Dhadoop.security.logger=ERROR,RFAS $HADOOP_DATANODE_OPTS -client"
+-----------------------------------
+
+
+全部重開
+在nanenode
+hdfs namenode -format
+hadoop-daemon.sh start namenode
+hadoop-daemon.sh start secondarynamenode
+在datanode
+hadoop=daemon.sh start datanode
+
+hdfs dfsadmin -report
