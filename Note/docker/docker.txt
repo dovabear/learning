@@ -148,3 +148,73 @@ ssh登入 用exit離開 不是docker
 去slave1 slave2 slave3 nano .bashrc檔
 在最後一段加上
 service ssh start
+
+==java==
+sudo apt-get install openjdk-8-jdk
+export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre/bin"
+
+==tommy command==
+docker run --hostname=master --add-host slave1:172.17.0.3 --add-host slave2:172.17.0.4 --name=master -itd itaipei/sample
+docker run --hostname=slave1 --add-host master:172.17.0.2 --add-host slave2:172.17.0.4 --name=slave1 -itd itaipei/sample
+docker run --hostname=slave2 --add-host master:172.17.0.2 --add-host slave1:172.17.0.3 --name=slave2 -itd itaipei/sample
+
+
+172.17.0.2 master
+172.17.0.3 slave1
+172.17.0.4 slave2
+
+ssh-copy-id -i ~/.ssh/id_rsa.pub master
+ssh-copy-id -i ~/.ssh/id_rsa.pub slave1
+ssh-copy-id -i ~/.ssh/id_rsa.pub slave2
+
+==手動安裝==
+wget http://mirrors.sonic.net/apache/hadoop/common/hadoop-2.9.0/hadoop-2.9.0.tar.gz
+tar -zxvf hadoop-2.9.0.tar.gz
+檢視相容性 file /opt/hadoop-2.9.0/lib/native/libhadoop.so.1.0.0
+
+nano /opt/allhadoop.sh
+#/bin/bash
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_HOME=/opt/hadoop-2.9.0
+export PATH=$PATH:$HADOOP_HOME/bin
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+
+nano ~/.bashrc
+source /opt/allhadoop.sh
+
+source ~/.bashrc
+
+
+一、設定hdfs
+1.設定core-site.xml
+nano /opt/hadoop-2.9.0/etc/hadoop/core-site.xml
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://master:8020</value>
+</property>
+
+2.設定hdfs-site.xml
+nano /opt/hadoop-2.9.0/etc/hadoop/hdfs-site.xml
+<property>
+<name>dfs.replication</name>
+<value>1</value>
+</property>
+<property>
+<name>dfs.namenode.name.dir</name>
+<value>/root/nn</value>
+</property>
+<property>
+<name>dfs.permissions.supergroup</name>
+<value>root</value>
+</property>
+-------------------------------
+<property>
+<name>dfs.datanode.data.dir</name>
+<value>/root/dn</value>
+</property>
+-------------------------------
+
+
+3.設定hadoop-env.sh
+nano /opt/hadoop-2.9.0/etc/hadoop/hadoop-env.sh
