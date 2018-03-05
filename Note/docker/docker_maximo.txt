@@ -1,4 +1,4 @@
-# Setup
+# Build Image
 ==============root@conatiner===============
 apt-get install openjdk-8-jdk
 apt-get install software-properties-common python-software-properties 
@@ -22,10 +22,25 @@ PermitRootLogin yes
 
 passwd root
 
+# Setup Cluster
 ==============root@vm===============
 ssh-copy-id -i ~/.ssh/id_rsa.pub container
 ssh-keygen -f "/root/.ssh/known_hosts" -R container
 
+vi /etc/hosts
+
+`
+172.17.0.2 m001
+172.17.0.3 s001
+172.17.0.4 s002
+172.17.0.5 s003
+`
+
+ssh-keygen
+ssh-copy-id -i ~/.ssh/id_rsa.pub m001
+ssh-copy-id -i ~/.ssh/id_rsa.pub s001
+ssh-copy-id -i ~/.ssh/id_rsa.pub s002
+ssh-copy-id -i ~/.ssh/id_rsa.pub s003
 
 docker run --name=m001 --hostname=m001 --add-host=s001:172.17.0.3 --add-host=s002:172.17.0.4 --add-host=s003:172.17.0.5 -itd othunderx/ubuntu_basic:16.04
 
