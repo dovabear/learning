@@ -154,16 +154,19 @@ sudo apt-get install openjdk-8-jdk
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre/bin"
 
 ==tommy command==
-docker run --hostname=master --add-host slave1:172.17.0.3 --add-host slave2:172.17.0.4 --name=master -itd itaipei/sample
-docker run --hostname=slave1 --add-host master:172.17.0.2 --add-host slave2:172.17.0.4 --name=slave1 -itd itaipei/sample
-docker run --hostname=slave2 --add-host master:172.17.0.2 --add-host slave1:172.17.0.3 --name=slave2 -itd itaipei/sample
+docker run --hostname=master --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master -itd itaipei/sample
+docker run --hostname=rm --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm -itd itaipei/sample
+docker run --hostname=slave1 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 -itd itaipei/sample
+docker run --hostname=slave2 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 -itd itaipei/sample
 
 
 172.17.0.2 master
-172.17.0.3 slave1
-172.17.0.4 slave2
+172.17.0.3 rm
+172.17.0.4 slave1
+172.17.0.5 slave2
 
 ssh-copy-id -i ~/.ssh/id_rsa.pub master
+ssh-copy-id -i ~/.ssh/id_rsa.pub rm
 ssh-copy-id -i ~/.ssh/id_rsa.pub slave1
 ssh-copy-id -i ~/.ssh/id_rsa.pub slave2
 
@@ -203,7 +206,7 @@ nano /opt/hadoop-2.9.0/etc/hadoop/hdfs-site.xml
 </property>
 <property>
 <name>dfs.namenode.name.dir</name>
-<value>/root/nn</value>
+<value>/root/master</value>
 </property>
 <property>
 <name>dfs.permissions.supergroup</name>
@@ -261,7 +264,7 @@ nano /opt/hadoop-2.9.0/etc/hadoop/core-site.xml
 nano /opt/hadoop-2.9.0/etc/hadoop/yarn-site.xml
 <property>
 <name>yarn.resourcemanager.hostname</name>
-<value>master</value>
+<value>rm</value>
 </property>
 ------nodemanager再加上這段--------------------
 <property>
