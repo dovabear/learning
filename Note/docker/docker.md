@@ -348,6 +348,7 @@ service postgresql status
 
 ==========Docker Image Ubuntu:16.04 Config===========
 ===Solve Postgres Encoding UTF-8 Problem===
+[reference](https://askubuntu.com/questions/99651/apt-get-warning-no-support-for-locale-en-us-utf8)
 dpkg-reconfigure locales
 `Locales to be generated: 149`
 `Default locale for the system environment: 3`
