@@ -346,6 +346,15 @@ wal_buffers = 8MB
 service postgresql start
 service postgresql status
 
+==========Docker Image Ubuntu:16.04 Config===========
+===Solve Postgres Encoding UTF-8 Problem===
+dpkg-reconfigure locales
+`Locales to be generated: 149`
+`Default locale for the system environment: 3`
+
+service postgresql restart
+=====================================================
+
 sudo -u postgres psql
 CREATE ROLE scm LOGIN PASSWORD 'scm';
 CREATE DATABASE scm OWNER scm ENCODING 'UTF8';
