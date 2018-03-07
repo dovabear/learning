@@ -316,3 +316,26 @@ mr-jobhistory-daemon.sh start historyserver
 yarn-daemon.sh start nodemanager
 
 yarn node all -list
+
+
+====CDH====
+在主機/opt/downloads/下(如果用master安裝 到時候可能連不到)
+wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel
+wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha1
+wget https://archive.cloudera.com/cm5/cm/5/cloudera-manager-xenial-cm5.12.2_amd64.tar.gz
+wget https://archive.cloudera.com/cm5/sles/12/x86_64/cm/5.12/RPMS/x86_64/oracle-j2sdk1.7-1.7.0+update67-1.x86_64.rpm
+wget http://archive.cloudera.com/cdh5/parcels/5.12/manifest.json
+
+apt-get update
+apt-get install postgresql postgresql-contrib
+su – postgres
+postgres-# \conninfo
+postgres-# \q
+nano /etc/postgresql/9.5/main/pg_hba.conf
+
+在type下加上
+host    all     all     127.0.0.1/32    md5
+host    all     all     172.17.0.0/24   md5
+
+
+
