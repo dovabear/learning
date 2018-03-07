@@ -319,6 +319,9 @@ yarn node all -list
 
 
 ====CDH====
+==docker port mapping==
+docker run --hostname=s01 --add-host master:X.X.X.X --add-host s02:X.X.X.X --add-host s03:X.X.X.X --name=s01 -itd  -p 7180:7180 -p 8888:8888 ubuntu:16.04
+
 在主機/opt/downloads/下(如果用master安裝 到時候可能連不到)
 wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel
 wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha1
