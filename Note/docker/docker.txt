@@ -329,8 +329,7 @@ wget http://archive.cloudera.com/cdh5/parcels/5.12/manifest.json
 apt-get update
 apt-get install postgresql postgresql-contrib
 su – postgres
-postgres-# \conninfo
-postgres-# \q
+
 
 nano /etc/postgresql/9.5/main/pg_hba.conf
 在type下加上
@@ -366,12 +365,69 @@ ALTER DATABASE Metastore SET standard_conforming_strings = off;
 按ctl+d跳出
 
 登入看看
+
 psql -U hive -d metastore -h 127.0.0.1
+
 hive
 按ctl+d跳出
 
+apt update
+apt instll ntp
+
+三台都做nano /etc/ntp.conf
+第一台把下面二行前面#拿掉存檔
+server 127.127.8.1 mode 135 prefer    # Meinberg GPS167 with PPS
+fudge 127.127.8.1 time1 0.0042        # relative to PPS for my hardware
+第二三台
+server 172.23.24.9 prefer(主機ip)
 
 
+三台都做service ntp start
+第二三台
+ntpq -p
+
+
+第一台
+cd /opt
+tar xzvf /opt/downloads/cloudera-manager-xenial-cm5.12.2_amd64.tar.gz
+
+/opt/cm-5.12.2/share/cmf/schema/scm_prepare_database.sh postgresql scm scm scm
+
+三台都做
+useradd --system --home=/opt/cm-5.12.2/run/cloudera-scm-server --shell=/bin/false --comment "Cloudera SCM User" cloudera-scm
+
+第一台做
+mkdir /opt/cm-5.12.2/run/cloudera-scm-agent
+chown -R cloudera-scm:cloudera-scm /opt/cm-5.12.2
+chown -R cloudera-scm:cloudera-scm /opt/log4j.log
+
+/opt/cm-5.12.2/etc/init.d/cloudera-scm-server start
+
+nano /opt/cm-5.12.2/etc/cloudera-scm-agent/config.ini
+找localhost
+改=主機名稱如ubuntumaster
+
+scp -r /opt/cm-5.12.2 root@slave1:/opt/
+scp -r /opt/cm-5.12.2 root@slave2:/opt/
+
+docker電腦上裝PYTHON
+apt install python2.7
+
+
+三台都跑
+/opt/cm-5.12.2/etc/init.d/cloudera-scm-agent start
+
+桌機brower連http://172.23.24.9:7180
+
+第一台執行
+cd /opt/cloudera/
+mkdir parcel-repo
+cp /opt/downloads/*parcel* /opt/cloudera/parcel-repo/
+cp /opt/downloads/manifest.json /opt/cloudera/parcel-repo/
+cd /opt/cloudera/parcel-repo/
+ls -l
+mv CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha1 CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha
+/opt/cm-5.12.2/etc/init.d/cloudera-scm-server restart
 
 
 
