@@ -154,25 +154,30 @@ sudo apt-get install openjdk-8-jdk
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre/bin"
 
 ==make image==
-docker run --name base --privileged=true -it ubuntu:16.04
 
+docker run --name base -it ubuntu:16.04
+passwd root
 apt-get update
 apt-get install software-properties-common python-software-properties 
 add-apt-repository ppa:webupd8team/java
 apt-get update 
 apt-get install oracle-java8-installer
 export JAVA_HOME="/usr/lib/jvm/java-8-oracle/jre/bin"
-apt-get install iputils-ping nano net-tools ssh ufw
+apt-get update
+apt-get install iputils-ping nano net-tools ssh
 nano /etc/ssh/sshd_config
 PermitRootLogin yes
 
-ufw disable
-passwd root
+nano ~/.bashrc
+service ssh stop
+service ssh start
+
+
 ==tommy command==
-docker run --hostname=master --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master --privileged=true -itd itaipei/base
-docker run --hostname=rm --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm --privileged=true -itd itaipei/base
-docker run --hostname=slave1 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 --privileged=true -itd itaipei/base
-docker run --hostname=slave2 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 --privileged=true -itd itaipei/base
+docker run --hostname=master --add-host ubuntumaster:172.23.24.9 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master -itd itaipei/base
+docker run --hostname=rm --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm -itd itaipei/base
+docker run --hostname=slave1 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 -itd itaipei/base
+docker run --hostname=slave2 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 -itd itaipei/base
 
 
 172.17.0.2 master
@@ -337,7 +342,12 @@ yarn node all -list
 ==docker port mapping==
 docker run --hostname=s01 --add-host master:X.X.X.X --add-host s02:X.X.X.X --add-host s03:X.X.X.X --name=s01 -itd  -p 7180:7180 -p 8888:8888 ubuntu:16.04
 
-在主機/opt/downloads/下(如果用master安裝 到時候可能連不到)
+docker run --hostname=master --add-host ubuntumaster:172.23.24.9 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master -itd -p 80:80 -p 7180:7180 -p 8888:8888 itaipei/base
+docker run --hostname=rm --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm -itd itaipei/base
+docker run --hostname=slave1 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 -itd itaipei/base
+docker run --hostname=slave2 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 -itd itaipei/base
+
+在主機/opt/downloads/下
 wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel
 wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha1
 wget https://archive.cloudera.com/cm5/cm/5/cloudera-manager-xenial-cm5.12.2_amd64.tar.gz
