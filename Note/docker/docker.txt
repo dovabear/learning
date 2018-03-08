@@ -334,6 +334,9 @@ yarn node all -list
 
 
 ====CDH====
+==docker port mapping==
+docker run --hostname=s01 --add-host master:X.X.X.X --add-host s02:X.X.X.X --add-host s03:X.X.X.X --name=s01 -itd  -p 7180:7180 -p 8888:8888 ubuntu:16.04
+
 在主機/opt/downloads/下(如果用master安裝 到時候可能連不到)
 wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel
 wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha1
@@ -360,6 +363,19 @@ wal_buffers = 8MB
 
 service postgresql start
 service postgresql status
+
+==========Docker Image Ubuntu:16.04 Config===========
+===Solve Postgres Encoding UTF-8 Problem===
+[reference](https://askubuntu.com/questions/99651/apt-get-warning-no-support-for-locale-en-us-utf8)
+===[Method 1]===
+dpkg-reconfigure locales
+`Locales to be generated: 149`
+`Default locale for the system environment: 3`
+===[Method 2]===
+locale-gen zh_TW zh_TW.UTF-8 zh_CN.UTF-8 en_US.UTF-8
+
+service postgresql restart
+=====================================================
 
 sudo -u postgres psql
 CREATE ROLE scm LOGIN PASSWORD 'scm';
