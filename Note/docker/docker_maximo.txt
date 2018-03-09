@@ -7,6 +7,8 @@ add-apt-repository ppa:webupd8team/java
 apt-get update 
 apt-get install oracle-java8-installer
 
+apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*
+
 vi ~/.bashrc
 **如果使用oracle java**
 export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
