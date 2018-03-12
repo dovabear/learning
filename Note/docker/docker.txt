@@ -1,4 +1,4 @@
-========================安裝========================
+========================安裝DOCKER========================
 sudo apt-get update
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -12,6 +12,8 @@ sudo  apt-get update
 sudo  apt-get  install  docker-ce
 
 sudo  usermod  -aG  docker master
+
+sudo  usermod  -aG  docker root
 
 -------------------
 sudo passwd root 
@@ -87,16 +89,6 @@ docker network ls
 Add Container Docker Network
 docker  network  connect  <net_name>  <container_name>
 
-========================Ambari Installation========================
-docker run --hostname=s01 --add-host master:X.X.X.X --add-host s02:X.X.X.X --add-host s03:X.X.X.X --name=s01 -itd ubuntu:16.04
-docker run --hostname=s02 --add-host master:X.X.X.X --add-host s01:X.X.X.X --add-host s03:X.X.X.X --name=s02 -itd ubuntu:16.04
-docker run --hostname=s03 --add-host master:X.X.X.X --add-host s01:X.X.X.X --add-host s02:X.X.X.X --name=s03 -itd ubuntu:16.04
-==install ifconfig==
-apt-get update
-apt-get install net-tools
-
-==install ping==
-apt-get install iputils-ping
 
 ==install vi/vim==
 sudo apt-get install vim
@@ -105,7 +97,7 @@ sudo apt-get install vim
 sudo apt-get install ssh
 
 ==install all by one cmd==
-docker exec -it s01 apt-get install iputils-ping nano net-tools ssh ufw python
+docker exec -it s01 apt-get install iputils-ping nano net-tools ssh
 
 ==edit host/ip==
 sudo vi /etc/hosts
@@ -149,9 +141,6 @@ ssh登入 用exit離開 不是docker
 在最後一段加上
 service ssh start
 
-==java==
-sudo apt-get install openjdk-8-jdk
-export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre/bin"
 
 ==make image==
 
@@ -162,7 +151,7 @@ apt-get install software-properties-common python-software-properties
 add-apt-repository ppa:webupd8team/java
 apt-get update 
 apt-get install oracle-java8-installer
-export JAVA_HOME="/usr/lib/jvm/java-8-oracle/jre/bin"
+export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 apt-get update
 apt-get install iputils-ping nano net-tools ssh
 nano /etc/ssh/sshd_config
@@ -177,9 +166,9 @@ service ssh start
 docker run --hostname=master --add-host ubuntumaster:172.23.24.9 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master -itd itaipei/base
 docker run --hostname=rm --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm -itd itaipei/base
 docker run --hostname=slave1 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 -itd itaipei/base
-docker run --hostname=slave2 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 -itd itaipei/base
+docker run --hostname=slave2 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --/base
 
-
+172.23.24.8 ubuntumaster
 172.17.0.2 master
 172.17.0.3 rm
 172.17.0.4 slave1
@@ -338,14 +327,26 @@ yarn-daemon.sh start nodemanager
 yarn node all -list
 
 
-====CDH====
+====關掉docker防火牆====
+
+sudo nano /etc/default/docker 
+DOCKER_OPTS="--iptables=false"
+service docker restart
+
+====CDH POSTGRESQL====
 ==docker port mapping==
 docker run --hostname=s01 --add-host master:X.X.X.X --add-host s02:X.X.X.X --add-host s03:X.X.X.X --name=s01 -itd  -p 7180:7180 -p 8888:8888 ubuntu:16.04
 
-docker run --hostname=master --add-host ubuntumaster:172.23.24.9 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master -itd -p 80:80 -p 7180:7180 -p 8888:8888 itaipei/base
-docker run --hostname=rm --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm -itd itaipei/base
-docker run --hostname=slave1 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 -itd itaipei/base
-docker run --hostname=slave2 --add-host ubuntumaster:172.23.24.9 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 -itd itaipei/base
+docker run --hostname=master --add-host ubuntumaster:172.23.24.8 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master -itd -p 80:80 -p 7180:7180 -p 8888:8888 itaipei/base
+docker run --hostname=rm --add-host ubuntumaster:172.23.24.8 --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm -itd itaipei/base
+docker run --hostname=slave1 --add-host ubuntumaster:172.23.24.8 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 -itd itaipei/base
+docker run --hostname=slave2 --add-host ubuntumaster:172.23.24.8 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 -itd itaipei/base
+
+docker run --hostname=master --add-host ubuntumaster:172.23.24.8 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=master -itd itaipei/base
+docker run --hostname=rm --add-host ubuntumaster:172.23.24.8 --add-host master:172.17.0.2 --add-host slave1:172.17.0.4 --add-host slave2:172.17.0.5 --name=rm -itd itaipei/base
+docker run --hostname=slave1 --add-host ubuntumaster:172.23.24.8 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave2:172.17.0.5 --name=slave1 -itd itaipei/base
+docker run --hostname=slave2 --add-host ubuntumaster:172.23.24.8 --add-host master:172.17.0.2 --add-host rm:172.17.0.3 --add-host slave1:172.17.0.4 --name=slave2 -itd itaipei/base
+
 
 在主機/opt/downloads/下
 wget http://archive.cloudera.com/cdh5/parcels/5.12/CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel
@@ -354,10 +355,10 @@ wget https://archive.cloudera.com/cm5/cm/5/cloudera-manager-xenial-cm5.12.2_amd6
 wget https://archive.cloudera.com/cm5/sles/12/x86_64/cm/5.12/RPMS/x86_64/oracle-j2sdk1.7-1.7.0+update67-1.x86_64.rpm
 wget http://archive.cloudera.com/cdh5/parcels/5.12/manifest.json
 
+====安裝postgresql=============
 apt-get update
 apt-get install postgresql postgresql-contrib
 su – postgres
-
 
 nano /etc/postgresql/9.5/main/pg_hba.conf
 在type下加上
@@ -412,8 +413,10 @@ psql -U hive -d metastore -h 127.0.0.1
 hive
 按ctl+d跳出
 
+
+====安裝ntp===========
 apt update
-apt instll ntp
+apt install ntp
 
 三台都做nano /etc/ntp.conf
 第一台把下面二行前面#拿掉存檔
@@ -422,11 +425,10 @@ fudge 127.127.8.1 time1 0.0042        # relative to PPS for my hardware
 第二三台
 server 172.23.24.9 prefer(主機ip)
 
-
 三台都做service ntp start
-第二三台
+第二三台下
 ntpq -p
-
+做測試
 
 第一台
 cd /opt
@@ -442,8 +444,8 @@ mkdir /opt/cm-5.12.2/run/cloudera-scm-agent
 chown -R cloudera-scm:cloudera-scm /opt/cm-5.12.2
 chown -R cloudera-scm:cloudera-scm /opt/log4j.log
 
-/opt/cm-5.12.2/etc/init.d/cloudera-scm-server start
 
+三台都做
 nano /opt/cm-5.12.2/etc/cloudera-scm-agent/config.ini
 找localhost
 改=主機名稱如ubuntumaster
@@ -451,10 +453,12 @@ nano /opt/cm-5.12.2/etc/cloudera-scm-agent/config.ini
 scp -r /opt/cm-5.12.2 root@slave1:/opt/
 scp -r /opt/cm-5.12.2 root@slave2:/opt/
 
+===python====
 docker電腦上裝PYTHON
 apt install python2.7
 
-
+第一台做
+/opt/cm-5.12.2/etc/init.d/cloudera-scm-server start
 三台都跑
 /opt/cm-5.12.2/etc/init.d/cloudera-scm-agent start
 
@@ -468,10 +472,11 @@ cp /opt/downloads/manifest.json /opt/cloudera/parcel-repo/
 cd /opt/cloudera/parcel-repo/
 ls -l
 mv CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha1 CDH-5.12.2-1.cdh5.12.2.p0.4-xenial.parcel.sha
+
 /opt/cm-5.12.2/etc/init.d/cloudera-scm-server restart
 
 
-
-
-
-
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle/
+export JRE_HOME=/usr/lib/jvm/java-8-oracle/jre
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar:$JRE_HOME/lib:$CLASSPATH 
+export PATH=$JAVA_HOME/bin:$PATH
