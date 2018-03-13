@@ -111,6 +111,24 @@ Username (ambari):
 ambari-server start
 
 
+===========Postgres Setup===========
+vi /etc/postgresql/9.5/main/pg_hba.conf
+# TYPE DATABASE USER CIDR-ADDRESS  METHOD
+host  all  all 0.0.0.0/0 md5
 
+===========Hive Setup===========
+mkdir jdbc_lib
+cd jdbc_lib
+wget https://jdbc.postgresql.org/download/postgresql-42.2.1.jar
+
+ambari-server setup --jdbc-db=postgres --jdbc-driver=/root/jdbc_lib/postgresql-42.2.1.jar
+
+sudo -u postgres psql
+CREATE ROLE hive LOGIN PASSWORD 'hive';
+CREATE DATABASE hive OWNER hive ENCODING 'UTF8';
+===========Oozie Setup===========
+sudo -u postgres psql
+CREATE ROLE oozie LOGIN PASSWORD 'oozie';
+CREATE DATABASE oozie OWNER oozie ENCODING 'UTF8';
 
 
