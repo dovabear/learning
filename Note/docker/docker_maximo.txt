@@ -57,3 +57,7 @@ docker run --name=s003 --hostname=s003 --add-host=m001:172.17.0.2 --add-host=s00
 docker run --name=master --hostname=master --add-host=slave1:172.17.0.3 --add-host=slave2:172.17.0.4 -itd -p 50070:50070 othunderx/hadoop:test
 docker run --name=slave1 --hostname=slave1 --add-host=master:172.17.0.2 --add-host=slave2:172.17.0.4 -itd othunderx/hadoop:test
 docker run --name=slave2 --hostname=slave2 --add-host=master:172.17.0.2 --add-host=slave1:172.17.0.3 -itd othunderx/hadoop:test
+
+# Docker Firewall Setup
+vi /etc/default/docker
+DOCKER_OPTS="--iptables=false"

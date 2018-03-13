@@ -60,3 +60,12 @@ sudo apt-get build-dep python-psycopg2
 sudo apt install python-pip
 pip install --upgrade pip
 pip install psycopg2 
+
+
+docker run --name=m01 --hostname=m01 --add-host=personallab:172.23.24.10 --add-host=s01:172.17.0.3 --add-host=s02:172.17.0.4 --add-host=s03:172.17.0.5 -itd othunderx/ubuntu_basic:16.04
+
+docker run --name=s01 --hostname=s01 --add-host=personallab:172.23.24.10 --add-host=m01:172.17.0.2 --add-host=s02:172.17.0.4 --add-host=s03:172.17.0.5 -itd othunderx/ubuntu_basic:16.04
+
+docker run --name=s02 --hostname=s02 --add-host=personallab:172.23.24.10 --add-host=m01:172.17.0.2 --add-host=s01:172.17.0.4 --add-host=s03:172.17.0.5 -itd othunderx/ubuntu_basic:16.04
+
+docker run --name=s03 --hostname=s03 --add-host=personallab:172.23.24.10 --add-host=m01:172.17.0.2 --add-host=s01:172.17.0.3 --add-host=s03:172.17.0.4 -itd othunderx/ubuntu_basic:16.04
