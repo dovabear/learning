@@ -141,6 +141,9 @@ ssh登入 用exit離開 不是docker
 在最後一段加上
 service ssh start
 
+如果不行的話
+nano /etc/ssh/sshd_config
+#PasswordAuthentication no
 
 ==make image==
 
