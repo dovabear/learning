@@ -37,6 +37,7 @@ https://www.youtube.com/watch?v=HCvYLV8Mshc
 # Linux网络管理 15 SSH协议原理
 https://www.youtube.com/watch?v=miCw0rAPIdw
 
+<<<<<<< HEAD
 # APACHE NIFI(CDC change data capture)
 http://www.cnblogs.com/neillee/p/6841320.html
 
@@ -47,3 +48,10 @@ https://www.youtube.com/watch?v=wnKyJKqKiVE
 https://www.youtube.com/watch?v=rufSuzfy3pc
 
 
+=======
+# 除Hadoop外你还需要知道的9个大数据技术
+http://www.chinagrid.net/show.aspx?id=23598&cid=17
+
+# COSS 103 kubernetes 介紹 教學 指令操作
+https://www.youtube.com/watch?v=wnKyJKqKiVE
+>>>>>>> c91ec7f06cd449f2c25ad6a81a9792d166f0b611
