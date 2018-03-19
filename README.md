@@ -36,3 +36,14 @@ https://www.youtube.com/watch?v=HCvYLV8Mshc
 
 # Linux网络管理 15 SSH协议原理
 https://www.youtube.com/watch?v=miCw0rAPIdw
+
+# APACHE NIFI(CDC change data capture)
+http://www.cnblogs.com/neillee/p/6841320.html
+
+# K8S
+https://www.youtube.com/watch?v=wnKyJKqKiVE
+
+# Kafka
+https://www.youtube.com/watch?v=rufSuzfy3pc
+
+
