@@ -1,5 +1,5 @@
 # VM Start
-```
+```powershell
 # Input Parameters for
 # - VmName: name of the vm to perform action to
 # - ResourceGroupName: resource group where the vm belongs to
@@ -19,7 +19,7 @@ Start-AzureRmVM -Name $VmName -ResourceGroupName $ResourceGroupName
 ```
 # Analysis Service Pause
 ### Install Module AzureRM.AnalysisServices is Required
-```
+```powershell
 Param(
 [string]$ResourceGroupName,
 [string]$ServerName
@@ -36,7 +36,7 @@ Suspend-AzureRmAnalysisServicesServer -Name $ServerName -ResourceGroupName $Reso
 ```
 
 # Analysis Service Resume
-```
+```powershell
 Param(
 [string]$ResourceGroupName,
 [string]$Name
@@ -52,7 +52,7 @@ Resume-AzureRmAnalysisServicesServer -Name $Name -ResourceGroupName $ResourceGro
 
 # Analysis Service Refresh By [TMSL](https://docs.microsoft.com/en-us/sql/analysis-services/tabular-models-scripting-language-commands/refresh-command-tmsl)
 ### Install Module SqlServer is Required
-```
+```powershell
 import-module SQLServer
 
 #$Conn = Get-AutomationConnection -Name AzureRunAsConnection
@@ -83,7 +83,7 @@ Invoke-ASCmd `
 ### [Anothor Approach By RESTFul](https://docs.microsoft.com/en-us/azure/analysis-services/analysis-services-async-refresh)
 
 # DataWarehouse Pause
-```
+```powershell
 Param(
 [string]$ResourceGroupName,
 [string]$ServerName,
@@ -100,7 +100,7 @@ Suspend-AzureRmSqlDatabase –ResourceGroupName $ResourceGroupName `
 ```
 
 # DataWarehouse Resume
-```
+```powershell
 Param(
 [string]$ResourceGroupName,
 [string]$ServerName,
