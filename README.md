@@ -42,3 +42,15 @@ http://www.chinagrid.net/show.aspx?id=23598&cid=17
 
 # COSS 103 kubernetes 介紹 教學 指令操作
 https://www.youtube.com/watch?v=wnKyJKqKiVE
+
+# kafka介绍
+https://www.youtube.com/watch?v=rufSuzfy3pc
+
+# MobaXterm：「十項全能」的遠程終端登錄軟件 SSH
+http://twfunnews.com/mobaxterm/
+
+# VMDK Link
+https://www.osboxes.org/vmware-images/
+
+# 透過單機版的 Kubernetes (miniKube) 來玩 K8S
+http://www.evanlin.com/Learn-about-kubernetes/
