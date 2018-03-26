@@ -37,6 +37,16 @@ https://www.youtube.com/watch?v=HCvYLV8Mshc
 # Linux网络管理 15 SSH协议原理
 https://www.youtube.com/watch?v=miCw0rAPIdw
 
+<<<<<<< HEAD
+# APACHE NIFI(CDC change data capture)
+http://www.cnblogs.com/neillee/p/6841320.html
+
+
+# Kafka
+https://www.youtube.com/watch?v=rufSuzfy3pc
+
+
+=======
 # 除Hadoop外你还需要知道的9个大数据技术
 http://www.chinagrid.net/show.aspx?id=23598&cid=17
 
@@ -53,4 +63,5 @@ http://twfunnews.com/mobaxterm/
 https://www.osboxes.org/vmware-images/
 
 # 透過單機版的 Kubernetes (miniKube) 來玩 K8S
-http://www.evanlin.com/Learn-about-kubernetes/
+http://www.evanlin.com/Learn-about-kubernetes/http://www.evanlin.com/Learn-about-kubernetes/
+=======
