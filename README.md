@@ -60,3 +60,6 @@ https://www.osboxes.org/vmware-images/
 
 # 透過單機版的 Kubernetes (miniKube) 來玩 K8S
 http://www.evanlin.com/Learn-about-kubernetes/
+
+# bigquery
+https://www.youtube.com/watch?v=L41nMEiknFw
