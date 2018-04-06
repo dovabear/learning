@@ -4,7 +4,7 @@
 
 `sudo su -`
 
-# (1/4) Installing kubeadm on your hosts
+## (1/4) Installing kubeadm on your hosts
 
 ## Installing Docker
 ```
