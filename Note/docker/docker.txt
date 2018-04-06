@@ -5,7 +5,7 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 echo $(lsb_release -cs)
 
-sudo add-apt-repository "deb [arch=amd64]  https://download.docker.com/linux/ubuntu  xenial  stable"
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  xenial  stable"
 
 sudo  apt-get update
 
