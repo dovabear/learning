@@ -1,4 +1,5 @@
-# Change to root
+# Preparation
+## Change to root
 `sudo passwd root`
 `sudo su -`
 
