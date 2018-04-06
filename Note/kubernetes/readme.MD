@@ -1,6 +1,7 @@
 # Preparation
 ## Change to root
 `sudo passwd root`
+
 `sudo su -`
 
 # (1/4) Installing kubeadm on your hosts
@@ -56,10 +57,12 @@ systemctl restart kubelet
 `export KUBECONFIG=/etc/kubernetes/admin.conf`
 
 ## (3/4) Installing a pod network
-Calico
+###Calico
+
 `kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml`
 
-Master Isolation
+###Master Isolation
+
 `kubectl taint nodes --all node-role.kubernetes.io/master-`
 
 ## (4/4) Joining your nodes
