@@ -86,15 +86,15 @@ Once a pod network has been installed, you can confirm that it is working by che
 ```
 kubeadm join --token <token> <master-ip>:<master-port> --discovery-token-ca-cert-hash sha256:<hash>
 ```
-
-# Deploying the Dashboard UI
+# Kubernetes Dashboard
+## Deploying the Dashboard UI
 
 The Dashboard UI is not deployed by default. To deploy it, run the following command:
 ```
 kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 ```
 
-# Accessing the Dashboard UI
+## Accessing the Dashboard UI
 
 透過 `kubectl proxy` 連到 Dashboard 是沒有認證機制的
 
@@ -107,3 +107,29 @@ kubectl proxy --address='0.0.0.0' --port=8002 --accept-hosts='^*$'
 ```
 http://<master-ip-address>:8002/api/v1/namespaces/kube-system/services/kubernetes-dashboard:/proxy/#!/overview?namespace=default
 ```
+
+# Common Instructions
+
+## Use kubectl on Windows
+First, copy the config file from master node to windows.
+The config file is located in `/etc/kubernetes/admin.conf`
+
+Usually kubernetes config is put in `%UserProfile%\.kube\admin.conf`
+
+Then in Windows (kubectl.exe is required)
+
+`kubectl --kubeconfig="%UserProfile%\.kube\admin.conf" <kube-command>`
+
+## Show All Pods
+
+`kubectl --kubeconfig="%UserProfile%\.kube\admin.conf" get pods --all-namespaces -o wide`
+
+`kubectl get pods --show-labels`
+
+## Show Detail on Pod by Name
+
+`kubectl describe pod <pod-label-name>`
+
+## Show Detail on Service by Name
+
+`kubectl --kubeconfig="%UserProfile%\.kube\admin.conf" -n kube-system describe services <service-label-name>`
