@@ -1,12 +1,20 @@
-# Preparation
+# Preparation on All Machines
 ## Change to root
 `sudo passwd root`
 
 `sudo su -`
 
+##Disable Swap
+`swapoff -a`
+
+```
+vi /etc/fstab 
+**uncomment the last line about swap**
+```
+
 ## (1/4) Installing kubeadm on your hosts
 
-## Installing Docker
+## Installing Docker (For All Machine)
 ```
 apt-get update
 apt-get install -y \
@@ -22,7 +30,7 @@ add-apt-repository \
 apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | grep 17.03 | head -1 | awk '{print $3}')
 ```
 
-## Installing kubeadm, kubelet and kubectl
+## Installing kubeadm, kubelet and kubectl on All Machines
 ```
 apt-get update && apt-get install -y apt-transport-https
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -52,11 +60,11 @@ systemctl restart kubelet
 ```
 
 ## (2/4) Initializing your master
-`kubeadm init --pod-network-cidr=192.168.0.0/16`
+`kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<master-ip-address>`
 
 `export KUBECONFIG=/etc/kubernetes/admin.conf`
 
-## (3/4) Installing a pod network
+## (3/4) Installing a pod network on Master Node
 Calico
 
 `kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml`
@@ -65,7 +73,7 @@ Master Isolation
 
 `kubectl taint nodes --all node-role.kubernetes.io/master-`
 
-## (4/4) Joining your nodes
+## (4/4) Joining cluster from Worker Node
 
 `sudo su -`
 ```
