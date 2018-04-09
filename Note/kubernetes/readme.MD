@@ -14,7 +14,7 @@ vi /etc/fstab
 
 ## (1/4) Installing kubeadm on your hosts
 
-## Installing Docker (For All Machine)
+## Installing Docker on All Machines
 ```
 apt-get update
 apt-get install -y \
