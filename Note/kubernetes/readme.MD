@@ -4,6 +4,9 @@
 
 `sudo su -`
 
+## Add Machine Host
+add line `<machine-ip-address> <hostname>`
+
 ## Disable Swap
 `swapoff -a`
 
@@ -11,6 +14,8 @@
 vi /etc/fstab 
 **uncomment the last line about swap**
 ```
+
+## Reboot Machine
 
 ## (1/4) Installing kubeadm on your hosts
 
@@ -73,9 +78,32 @@ Master Isolation
 
 `kubectl taint nodes --all node-role.kubernetes.io/master-`
 
+Once a pod network has been installed, you can confirm that it is working by checking that the kube-dns pod is Running in the output of kubectl get pods --all-namespaces. And once the kube-dns pod is up and running, you can continue by joining your nodes.
+
 ## (4/4) Joining cluster from Worker Node
 
 `sudo su -`
 ```
 kubeadm join --token <token> <master-ip>:<master-port> --discovery-token-ca-cert-hash sha256:<hash>
+```
+
+# Deploying the Dashboard UI
+
+The Dashboard UI is not deployed by default. To deploy it, run the following command:
+```
+kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+```
+
+# Accessing the Dashboard UI
+
+透過 `kubectl proxy` 連到 Dashboard 是沒有認證機制的
+
+kubectl proxy 本身提供許多 options 讓該指令的應用更加彈性。例如，若是我們希望別台機器也能透過下 kubectl proxy 指令的機器存取 Dashboard，則我們可以在指令後面加上 --address 與 --accept-hosts 如以下指令
+```
+kubectl proxy --address='0.0.0.0' --port=8002 --accept-hosts='^*$'
+```
+
+目前官方已不推薦使用 http://<master-ip-address>:8002/ui 存取 Dashboard，而是用
+```
+http://<master-ip-address>:8002/api/v1/namespaces/kube-system/services/kubernetes-dashboard:/proxy/#!/overview?namespace=default
 ```
