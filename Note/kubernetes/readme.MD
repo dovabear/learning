@@ -4,7 +4,7 @@
 
 `sudo su -`
 
-##Disable Swap
+## Disable Swap
 `swapoff -a`
 
 ```
