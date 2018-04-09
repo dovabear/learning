@@ -112,9 +112,9 @@ http://<master-ip-address>:8002/api/v1/namespaces/kube-system/services/kubernete
 
 ## Use kubectl on Windows
 First, copy the config file from master node to windows.
-The config file is located in `/etc/kubernetes/admin.conf`
+The config file is located in `/etc/kubernetes/admin.conf` on master.
 
-Usually kubernetes config is put in `%UserProfile%\.kube\admin.conf`
+Usually kubernetes config is put in `%UserProfile%\.kube\admin.conf` on windows.
 
 Then in Windows (kubectl.exe is required)
 
