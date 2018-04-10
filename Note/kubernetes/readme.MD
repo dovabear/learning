@@ -116,13 +116,17 @@ The config file is located in `/etc/kubernetes/admin.conf` on master.
 
 Usually kubernetes config is put in `%UserProfile%\.kube\admin.conf` on windows.
 
-Then in Windows (kubectl.exe is required)
+Command in Windows (kubectl.exe is required)
 
 `kubectl --kubeconfig="%UserProfile%\.kube\admin.conf" <kube-command>`
 
+OR Set Environment Varibles `SET KUBECONFIG="%USERPROFILE%/.kube/admin.conf"` then
+
+`kubectl <kube-command>`
+
 ## Show All Pods
 
-`kubectl --kubeconfig="%UserProfile%\.kube\admin.conf" get pods --all-namespaces -o wide`
+`kubectl get pods --all-namespaces -o wide`
 
 `kubectl get pods --show-labels`
 
@@ -132,4 +136,4 @@ Then in Windows (kubectl.exe is required)
 
 ## Show Detail on Service by Name
 
-`kubectl --kubeconfig="%UserProfile%\.kube\admin.conf" -n kube-system describe services <service-label-name>`
+`kubectl -n kube-system describe services <service-label-name>`
