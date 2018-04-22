@@ -5,6 +5,9 @@
 `sudo su -`
 
 ## Add Machine Host
+
+edit file `/etc/hosts`
+
 add line `<machine-ip-address> <hostname>`
 
 ## Disable Swap
@@ -17,10 +20,12 @@ vi /etc/fstab
 
 ## Reboot Machine
 
+`reboot now`
+
 ## (1/4) Installing kubeadm on your hosts
 
 ## Installing Docker on All Machines
-```
+```bash
 apt-get update
 apt-get install -y \
     apt-transport-https \
@@ -36,7 +41,7 @@ apt-get update && apt-get install -y docker-ce=$(apt-cache madison docker-ce | g
 ```
 
 ## Installing kubeadm, kubelet and kubectl on All Machines
-```
+```bash
 apt-get update && apt-get install -y apt-transport-https
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
@@ -48,18 +53,18 @@ apt-get install -y kubelet kubeadm kubectl
 
 ## Configure cgroup driver used by kubelet on Master Node
 Make sure that the cgroup driver used by kubelet is the same as the one used by Docker. Verify that your Docker cgroup driver matches the kubelet config:
-```
+```bash
 docker info | grep -i cgroup
 cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 ```
 Manual Add line
 `Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"`
 To /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-```
+```bash
 sed -i "s/cgroup-driver=systemd/cgroup-driver=cgroupfs/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 ```
 Then restart kubelet:
-```
+```bash
 systemctl daemon-reload
 systemctl restart kubelet
 ```
@@ -83,14 +88,14 @@ Once a pod network has been installed, you can confirm that it is working by che
 ## (4/4) Joining cluster from Worker Node
 
 `sudo su -`
-```
+```bash
 kubeadm join --token <token> <master-ip>:<master-port> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 # Kubernetes Dashboard
 ## Deploying the Dashboard UI
 
 The Dashboard UI is not deployed by default. To deploy it, run the following command:
-```
+```bash
 kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 ```
 
@@ -99,12 +104,12 @@ kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/
 透過 `kubectl proxy` 連到 Dashboard 是沒有認證機制的
 
 kubectl proxy 本身提供許多 options 讓該指令的應用更加彈性。例如，若是我們希望別台機器也能透過下 kubectl proxy 指令的機器存取 Dashboard，則我們可以在指令後面加上 --address 與 --accept-hosts 如以下指令
-```
+```bash
 kubectl proxy --address='0.0.0.0' --port=8002 --accept-hosts='^*$'
 ```
 
 目前官方已不推薦使用 http://<master-ip-address>:8002/ui 存取 Dashboard，而是用
-```
+```bash
 http://<master-ip-address>:8002/api/v1/namespaces/kube-system/services/kubernetes-dashboard:/proxy/#!/overview?namespace=default
 ```
 
