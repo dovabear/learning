@@ -20,6 +20,38 @@ spma 172.23.24.14
 workera 172.23.24.15
 workerb 172.23.24.16
 
+==ssh==
+
+ssh-keygen
+ls ~/.ssh/
+ id_rsa  
+ id_rsa.pub
+
+
+nano /etc/ssh/sshd_config
+ PermitRootLogin without-password
+ change to
+ PermitRootLogin yes
+#passwordAuthentication no
+service ssh restart
+
+切換到master root帳號
+ssh-copy-id -i ~/.ssh/id_rsa.pub +電腦名稱
+
+各別ssh一次 因為第一次要打密碼
+ssh登入 用exit離開
+
+去所有電腦 nano .bashrc檔
+在最後一段加上
+service ssh start
+
+==java
+apt-get update
+apt-get install software-properties-common python-software-properties 
+add-apt-repository ppa:webupd8team/java
+apt-get update 
+apt-get install oracle-java8-installer
+export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 ==手動安裝hdfs==
 cd /opt
 wget http://mirrors.sonic.net/apache/hadoop/common/hadoop-2.9.0/hadoop-2.9.0.tar.gz
