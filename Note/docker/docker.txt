@@ -128,6 +128,7 @@ nano /etc/ssh/sshd_config
  PermitRootLogin without-password
  change to
  PermitRootLogin yes
+#passwordAuthentication no
 service ssh restart
 
 ¤Á´«¨ìmaster root±b¸¹
