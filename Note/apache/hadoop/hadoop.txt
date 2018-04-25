@@ -14,11 +14,11 @@ workera 172.23.24.15
 workerb 172.23.24.16
 
 nano /etc/hosts
-hdnn 172.23.24.12
-hdrm 172.23.24.13
-spma 172.23.24.14
-workera 172.23.24.15
-workerb 172.23.24.16
+172.23.24.12 hdnn
+172.23.24.13 hdrm
+172.23.24.14 spkma
+172.23.24.15 worker01
+172.23.24.16 worker02
 
 ==ssh==
 
