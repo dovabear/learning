@@ -20,30 +20,43 @@ nano /etc/hosts
 172.23.24.15 worker01
 172.23.24.16 worker02
 
-==ssh==
+==ssh=
 
+<Each>
+sudo passwd root
+
+sudo adduser hdadmin
+sudo adduser hdadmin sudo
+
+<Name-Node>
 ssh-keygen
-ls ~/.ssh/
- id_rsa  
- id_rsa.pub
 
-
-nano /etc/ssh/sshd_config
+<Each>
+sudo nano /etc/ssh/sshd_config
  PermitRootLogin without-password
  change to
  PermitRootLogin yes
 #passwordAuthentication no
-service ssh restart
+
+sudo service ssh restart
 
 切換到master root帳號
 ssh-copy-id -i ~/.ssh/id_rsa.pub +電腦名稱
+<Name-Node>
+sudo ssh-copy-id -i /home/hdadmin/.ssh/id_rsa.pub hdadmin@hdrm
+sudo ssh-copy-id -i /home/hdadmin/.ssh/id_rsa.pub hdadmin@spkma
+sudo ssh-copy-id -i /home/hdadmin/.ssh/id_rsa.pub hdadmin@worker01
+sudo ssh-copy-id -i /home/hdadmin/.ssh/id_rsa.pub hdadmin@worker02
 
 各別ssh一次 因為第一次要打密碼
 ssh登入 用exit離開
 
+<Each>
 去所有電腦 nano .bashrc檔
 在最後一段加上
-service ssh start
+vi ~/.bashrc 
+<add-line>
+sudo service ssh restart
 
 ==java
 apt-get update
@@ -53,12 +66,15 @@ apt-get update
 apt-get install oracle-java8-installer
 export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
 ==手動安裝hdfs==
+<Name-Node, Data-Node>
 cd /opt
-wget http://mirrors.sonic.net/apache/hadoop/common/hadoop-2.9.0/hadoop-2.9.0.tar.gz
-tar -zxvf hadoop-2.9.0.tar.gz
-檢視相容性 file /opt/hadoop-2.9.0/lib/native/libhadoop.so.1.0.0
+sudo wget http://mirrors.sonic.net/apache/hadoop/common/hadoop-2.9.0/hadoop-2.9.0.tar.gz
+sudo tar -zxvf hadoop-2.9.0.tar.gz
+<test compatiability>
+sudo file /opt/hadoop-2.9.0/lib/native/libhadoop.so.1.0.0
 
-nano /opt/myhadoop.sh
+<Each>
+sudo nano /opt/myhadoop.sh
 #/bin/bash
 
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
