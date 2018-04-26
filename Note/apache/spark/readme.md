@@ -1,5 +1,6 @@
 NameNode Web Broswer
 http://<name-node-ip>:50070
+需先安裝Java
 
 安裝 Spark Standalone
 <spkma, worker01, worker02>
@@ -30,6 +31,18 @@ export SPARK_WORKER_DIR=/root/<spark-hostname>
 #export ANACONDA_ROOT=/opt/anaconda3
 #export PYSPARK_PYTHON=$ANACONDA_ROOT/bin/python
 
+# Setup Spark Default Conf
+
+cp /opt/spark-2.3.0-bin-hadoop2.7/conf/spark-defaults.conf.template /opt/spark-2.3.0-bin-hadoop2.7/conf/spark-defaults.conf
+
+vi  /opt/spark-2.3.0-bin-hadoop2.7/conf/spark-defaults.conf
+<add-lines>
+spark.master spark://spkma:7077
+spark.cores.max 4
+spark.executor.cores 2
+spark.executor.memory 4096m
+
+# Expirements
 Add User 'hackerthon' for Spark
 sudo adduser hackerthon
 
@@ -121,9 +134,12 @@ export PYSPARK_DRIVER_PYTHON_OPTS="notebook --ip='*'  --no-browser --allow-root"
 pyspark --master spark://spkma:7077 --total-executor-cores 2 --executor-cores 1 --executor-memory 2048m 
 #Pyspark=jupyter notebook --ip ='*'  --no-browser
 
+安裝本機R
+sudo apt-get install r-base -y
+
 安裝 R 分析工具
 
-/opt/anaconda3/bin/conda install -c  r  r-essentials r-sparklyr
+sudo /opt/anaconda3/bin/conda install -c r r-base r-essentials r-sparklyr
 
 Fetching package metadata .............
 Solving package specifications: .
@@ -144,6 +160,11 @@ The following packages will be DOWNGRADED:
     ...............          
 
 Proceed ([y]/n)? y 
+
+設定 SparkR 叢集使用 Anaconda 
+vi /opt/spark-2.3.0-bin-hadoop2.7/conf/spark-env.sh
+<add-lines>
+export SPARKR_DRIVER_R=$ANACONDA_ROOT/bin/R
 
 Restart Spark Standalone
 
@@ -168,3 +189,19 @@ pyspark --master spark://spma:7077 --total-executor-cores 1 --executor-cores 1 -
 #Pyspark=jupyter notebook --ip ='*'  --no-browser
 
 chmod +x /opt/bin/startjupyter
+
+啟動startjupyter失敗時
+conda update jupyter_core jupyter_client
+
+列出jupyter kernel
+jupyter kernelspec list
+
+jupyter Spark Properties Debug
+sc
+spark
+sc.getConf().toDebugString()
+
+jupyter SparkR Properties Debug
+sparkR.session()
+sessionInfo()
+sparkR.conf()
