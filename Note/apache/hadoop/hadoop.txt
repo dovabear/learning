@@ -149,6 +149,54 @@ hadoop-daemon.sh stop secondarynamenode
 在datanode
 hadoop-daemon.sh stop datanode
 
+==============================
+HDFS Auto-Start
+==============================
+jps | grep NameNode > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    echo "NameNode is running already"
+else
+    hadoop-daemon.sh start namenode
+fi
+
+jps | grep SecondaryNameNode > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    echo "SecondaryNameNode is running already"
+else
+    hadoop-daemon.sh start secondarynamenode
+fi
+
+jps | grep DataNode > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    echo "DataNode is running already"
+else
+    hadoop-daemon.sh start datanode
+fi
+==============================
+HDFS Auto-Stop
+==============================
+jps | grep NameNode > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    hadoop-daemon.sh stop namenode
+else
+    echo "NameNode is not running"
+fi
+
+jps | grep SecondaryNameNode > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    hadoop-daemon.sh stop secondarynamenode
+else
+    echo "SecondaryNameNode is not running"
+fi
+
+jps | grep DataNode > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    hadoop-daemon.sh stop datanode
+else
+    echo "DataNode is not running"
+fi
+==============================
+
 
 =====設定yarn=========
 1.設定core-site.xml，hdfs已經設定過了

@@ -59,6 +59,40 @@ Similarly, you can start one or more workers and connect them to the master via:
 
 <master-spark-URL> = spark://<master-spark-host>:7077
 
+==============================
+Spark Auto-Start
+==============================
+jps | grep Master > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    echo "Spark-Master is running already"
+else
+    start-master.sh
+fi
+
+jps | grep Worker > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    echo "Spark-Worker is running already"
+else
+    start-slave.sh spark://<master-spark-host>:7077
+fi
+==============================
+Spark Auto-Stop
+==============================
+jps | grep Master > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    stop-master.sh
+else
+    echo "Spark-Master is not running"
+fi
+
+jps | grep Worker > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    stop-slave.sh
+else
+    echo "Spark-Worker is not running"
+fi
+==============================
+
 安裝 Anaconda
 <spkma, worker01, worker02>
 wget https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh -O /tmp/anaconda3.sh
@@ -184,7 +218,7 @@ vi /opt/bin/startjupyter
 #!/bin/bash
 export ANACONDA_ROOT=/opt/anaconda3
 export PYSPARK_DRIVER_PYTHON=$ANACONDA_ROOT/bin/jupyter
-export PYSPARK_DRIVER_PYTHON_OPTS="notebook --ip='*'  --no-browser --allow-root"
+export PYSPARK_DRIVER_PYTHON_OPTS="notebook --ip='*'  --notebook-dir=/opt/workspace --no-browser --allow-root"
 pyspark --master spark://spma:7077 --total-executor-cores 1 --executor-cores 1 --executor-memory 512m 
 #Pyspark=jupyter notebook --ip ='*'  --no-browser
 
