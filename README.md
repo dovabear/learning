@@ -63,3 +63,15 @@ http://www.evanlin.com/Learn-about-kubernetes/
 
 # bigquery
 https://www.youtube.com/watch?v=L41nMEiknFw
+
+# 微積分
+https://www.youtube.com/watch?v=--bnoS_3zTw&list=PLLc_VmyS2EKnoNqkd_1EkHVDK9TM8IrSX
+
+# 實數與虛數
+https://www.youtube.com/watch?v=2TnqTGxMU6w
+
+# 封裝 繼承 多型
+https://www.youtube.com/watch?v=Ubl5Dv-kVHc
+
+# 向量
+https://www.youtube.com/watch?v=WIejVc3u0F4&list=PLA9470D64579500CE&index=1
