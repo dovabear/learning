@@ -1,4 +1,4 @@
-# learning
+﻿# learning
 # python test
 
 Practice Pandas & Numpy
@@ -75,3 +75,7 @@ https://www.youtube.com/watch?v=Ubl5Dv-kVHc
 
 # 向量
 https://www.youtube.com/watch?v=WIejVc3u0F4&list=PLA9470D64579500CE&index=1
+
+# 矩陣
+https://www.youtube.com/watch?v=dBS3_9BpjHc&index=11&list=PLI6pJZaOCtF0ye-3NV2OVT96_jRljQuFe
+
