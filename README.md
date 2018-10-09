@@ -81,3 +81,6 @@ https://www.youtube.com/watch?v=dBS3_9BpjHc&index=11&list=PLI6pJZaOCtF0ye-3NV2OV
 
 # 對數
 https://www.youtube.com/watch?v=rH7elVBI1WY
+
+# 向量
+https://www.youtube.com/watch?v=WIejVc3u0F4&list=PLA9470D64579500CE
