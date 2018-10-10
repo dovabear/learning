@@ -84,3 +84,6 @@ https://www.youtube.com/watch?v=rH7elVBI1WY
 
 # 向量
 https://www.youtube.com/watch?v=WIejVc3u0F4&list=PLA9470D64579500CE
+
+# 自然常數e
+https://www.youtube.com/watch?v=a6AqjBL7YtA&t=10s
